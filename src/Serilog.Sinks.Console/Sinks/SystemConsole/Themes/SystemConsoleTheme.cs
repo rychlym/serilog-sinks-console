@@ -67,9 +67,9 @@ namespace Serilog.Sinks.SystemConsole.Themes
             if (_styles.TryGetValue(style, out var wcts))
             {
                 if (wcts.Foreground.HasValue)
-                    Console.ForegroundColor = wcts.Foreground.Value;
+                    System.Console.ForegroundColor = wcts.Foreground.Value;
                 if (wcts.Background.HasValue)
-                    Console.BackgroundColor = wcts.Background.Value;
+                    System.Console.BackgroundColor = wcts.Background.Value;
             }
 
             return 0;
@@ -78,7 +78,7 @@ namespace Serilog.Sinks.SystemConsole.Themes
         /// <inheritdoc/>
         public override void Reset(TextWriter output)
         {
-            Console.ResetColor();
+            System.Console.ResetColor();
         }
     }
 }

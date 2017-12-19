@@ -77,9 +77,9 @@ namespace Serilog.Sinks.SystemConsole
         TextWriter SelectOutputStream(LogEventLevel logEventLevel)
         {
             if (!_standardErrorFromLevel.HasValue)
-                return Console.Out;
+                return System.Console.Out;
 
-            return logEventLevel < _standardErrorFromLevel ? Console.Out : Console.Error;
+            return logEventLevel < _standardErrorFromLevel ? System.Console.Out : System.Console.Error;
         }
     }
 }

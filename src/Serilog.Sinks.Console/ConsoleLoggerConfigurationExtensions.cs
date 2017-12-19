@@ -20,6 +20,7 @@ using Serilog.Formatting;
 using Serilog.Sinks.SystemConsole;
 using Serilog.Sinks.SystemConsole.Themes;
 using Serilog.Sinks.SystemConsole.Output;
+using Serilog.Sinks.Console.Formatting;
 
 namespace Serilog
 {
@@ -61,7 +62,7 @@ namespace Serilog
                 ConsoleTheme.None :
                 theme ?? SystemConsoleThemes.Literate;
 
-            var formatter = new OutputTemplateRenderer(appliedTheme, outputTemplate, formatProvider);
+            var formatter = new OutputTemplateRenderer(outputTemplate, formatProvider) { Theme = appliedTheme };
             return sinkConfiguration.Sink(new ConsoleSink(appliedTheme, formatter, standardErrorFromLevel), restrictedToMinimumLevel, levelSwitch);
         }
 
@@ -73,21 +74,31 @@ namespace Serilog
         /// control plain text formatting, use the overload that accepts an output template.</param>
         /// <param name="restrictedToMinimumLevel">The minimum level for
         /// events passed through the sink. Ignored when <paramref name="levelSwitch"/> is specified.</param>
+        /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="levelSwitch">A switch allowing the pass-through minimum level
         /// to be changed at runtime.</param>
         /// <param name="standardErrorFromLevel">Specifies the level at which events will be written to standard error.</param>
+        /// <param name="theme">The theme to apply to the styled output. If not specified,
+        /// uses <see cref="SystemConsoleTheme.Literate"/>.</param>
         /// <returns>Configuration object allowing method chaining.</returns>
         public static LoggerConfiguration Console(
             this LoggerSinkConfiguration sinkConfiguration,
-            ITextFormatter formatter,
+            IThemedTextFormatter formatter,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+            IFormatProvider formatProvider = null,
             LoggingLevelSwitch levelSwitch = null,
-            LogEventLevel? standardErrorFromLevel = null)
+            LogEventLevel? standardErrorFromLevel = null,
+            ConsoleTheme theme = null)
         {
             if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
             if (formatter == null) throw new ArgumentNullException(nameof(formatter));
 
-            return sinkConfiguration.Sink(new ConsoleSink(ConsoleTheme.None, formatter, standardErrorFromLevel), restrictedToMinimumLevel, levelSwitch);
+            var appliedTheme = System.Console.IsOutputRedirected || System.Console.IsErrorRedirected ?
+                ConsoleTheme.None :
+                theme ?? SystemConsoleThemes.Literate;
+
+            formatter.Theme = appliedTheme;
+            return sinkConfiguration.Sink(new ConsoleSink(appliedTheme, formatter, standardErrorFromLevel), restrictedToMinimumLevel, levelSwitch);
         }
     }
 }
